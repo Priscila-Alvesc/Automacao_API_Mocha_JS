@@ -22,7 +22,7 @@ describe('Transfer Controller', () => {
                 });
 
             token = respostaLogin.body.token;
-        })
+        });
 
         it('Quando informo remetente e destinatario inexistentes recebo 400', async () => {
             const resposta = await request(app)
@@ -30,7 +30,7 @@ describe('Transfer Controller', () => {
                 .set('Authorization', `Bearer ${token}`)
                 .send({
                     from: "julio",
-                    to: "priscila",
+                    to: "isabelle",
                     value: 100
                 });
             
