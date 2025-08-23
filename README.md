@@ -2,6 +2,15 @@
 
 Esta API permite o registro, login, consulta de usuários e transferências de valores entre usuários. O objetivo é servir de base para estudos de testes e automação de APIs.
 
+app – ponto de entrada da aplicação, configura servidor, middlewares e inicializa rotas
+route – define os endpoints e mapeia cada rota para um controlador específico
+controller – recebe as requisições das rotas, coordena o fluxo e chama os serviços necessários
+service – contém a lógica de negócio e regras de processamento dos dados
+model – define a estrutura dos dados e a forma de interagir com o banco de dados
+
+Postman -> App.JS -> Route -> Controller -> Services -> Model -> Bando de dados
+
+
 ## Tecnologias
 - Node.js
 - Express
