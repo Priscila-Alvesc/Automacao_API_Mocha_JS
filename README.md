@@ -5,6 +5,8 @@ Esta API permite o registro, login, consulta de usuários e transferências de v
 ## Tecnologias
 - Node.js
 - Express
+- Mocha & Chai (Testes)
+- Supertest (Testes de HTTP)
 - Swagger (documentação)
 - Banco de dados em memória (variáveis)
 
@@ -12,50 +14,73 @@ Esta API permite o registro, login, consulta de usuários e transferências de v
 
 1. Clone o repositório:
    ```sh
-   git clone <repo-url>
-   cd pgats-02-api
+   git clone <URL_DO_SEU_REPOSITORIO>
+   cd Automacao_API_Mocha_JS
    ```
-2. Instale as dependências:
+2. Instale as dependências do projeto:
    ```sh
-   npm install express swagger-ui-express bcryptjs
+   # Usando npm
+   npm install
+
+   # Ou usando Yarn
+   yarn install
    ```
 
-## Como rodar
+## Como Rodar a Aplicação
 
-- Para iniciar o servidor:
-  ```sh
-  node server.js
-  ```
-- A API estará disponível em `http://localhost:3000`
-- A documentação Swagger estará em `http://localhost:3000/api-docs`
+Para iniciar o servidor de desenvolvimento:
+```sh
+# Usando npm
+npm start
 
-## Endpoints principais
+# Ou usando Yarn
+yarn start
+```
+- A API estará disponível em `http://localhost:3000`.
+- A documentação interativa do Swagger estará em `http://localhost:3000/api-docs`.
 
-### Registro de usuário
-- `POST /users/register`
+## Como Rodar os Testes
+
+O projeto está configurado com Mocha e Chai para testes de unidade e integração.
+
+### Rodar todos os testes
+```sh
+# Usando npm
+npm test
+
+# Ou usando Yarn
+yarn test
+```
+
+### Rodar suítes de testes específicas
+```sh
+# Testes de Controller
+npm run test-controller
+yarn test-controller
+
+# Testes de External
+npm run test-external
+yarn test-external
+```
+
+## Endpoints Principais e Regras de Negócio
+
+### Usuários
+- **`POST /users/register`**: Registra um novo usuário.
   - Body: `{ "username": "string", "password": "string", "favorecidos": ["string"] }`
-
-### Login
-- `POST /users/login`
+  - *Regra*: Não é permitido registrar usuários com `username` duplicado.
+  - *Regra*: O saldo inicial de cada usuário é de R$ 10.000,00.
+- **`POST /users/login`**: Autentica um usuário e retorna um token.
   - Body: `{ "username": "string", "password": "string" }`
-
-### Listar usuários
-- `GET /users`
+  - *Regra*: Login exige `username` e `password` corretos.
+- **`GET /users`**: Lista todos os usuários cadastrados.
 
 ### Transferências
-- `POST /transfers`
+- **`POST /transfers`**: Realiza uma transferência entre usuários.
   - Body: `{ "from": "string", "to": "string", "value": number }`
-- `GET /transfers`
-
-## Regras de negócio
-- Não é permitido registrar usuários duplicados.
-- Login exige usuário e senha.
-- Transferências acima de R$ 5.000,00 só podem ser feitas para favorecidos.
-- O saldo inicial de cada usuário é de R$ 10.000,00.
-
-## Testes
-- O arquivo `app.js` pode ser importado em ferramentas de teste como Supertest.
+  - *Regra*: Transferências acima de R$ 5.000,00 só podem ser feitas para usuários na lista de `favorecidos` do remetente.
+- **`GET /transfers`**: Lista todas as transferências realizadas.
 
 ---
 
-Para dúvidas, consulte a documentação Swagger ou o código-fonte.
+Para mais detalhes sobre os endpoints e seus parâmetros, consulte a documentação Swagger ou o código-fonte.
