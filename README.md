@@ -1,82 +1,119 @@
-# API de Transferências e Usuários
+# Projeto de API para Transferências (REST e GraphQL)
 
-Esta API permite o registro, login, consulta de usuários e transferências de valores entre usuários. O objetivo é servir de base para estudos de testes e automação de APIs.
+Este projeto contém duas implementações de uma API para transferências de valores entre usuários: uma utilizando **REST** e outra com **GraphQL**. O objetivo principal é servir como um ambiente de estudos e demonstração para automação de testes de API.
 
-## Tecnologias
+## ✨ Principais Funcionalidades
+
+- **Gerenciamento de Usuários**: Registro, login e listagem.
+- **Transferências**: Realização e consulta de transferências entre contas.
+- **Autenticação**: Uso de JWT para proteger rotas.
+- **Regras de Negócio**: Limites de transferência e validação de saldo.
+
+## 🚀 Tecnologias Utilizadas
+
 - Node.js
 - Express
-- Swagger (documentação)
+- GraphQL
+- Mocha & Chai (Testes)
+- Sinon (Mocks & Stubs)
+- Supertest (Requisições HTTP em testes)
 - Banco de dados em memória (variáveis)
 
-## Instalação
+---
+
+## 🏁 Começando
+
+Siga os passos abaixo para configurar e executar o projeto em seu ambiente local.
+
+### 1. Pré-requisitos
+
+- [Node.js](https://nodejs.org/en/) (versão 14 ou superior)
+- [npm](https://www.npmjs.com/) ou [yarn](https://yarnpkg.com/)
+
+### 2. Instalação
 
 1. Clone o repositório:
    ```sh
-   git clone <repo-url>
-   cd pgats-02-api
+   git clone <URL-DO-SEU-REPOSITORIO>
+   cd Automacao_API_Mocha_JS
    ```
 2. Instale as dependências:
    ```sh
-   npm install express swagger-ui-express bcryptjs
+   npm install
    ```
 
-## Como rodar
+### 3. Executando as APIs
 
-- Para iniciar o servidor:
+O projeto possui dois servidores que podem ser executados separadamente.
+
+#### 🌐 API REST
+
+- Para iniciar o servidor REST, execute:
   ```sh
-  node server.js
+  npm start
   ```
-- A API estará disponível em `http://localhost:3000`
-- A documentação Swagger estará em `http://localhost:3000/api-docs`
+- A API REST estará disponível em `http://localhost:3000`.
+- A documentação Swagger pode ser acessada em `http://localhost:3000/api-docs`.
 
-## Endpoints principais
+#### ⚛️ API GraphQL
 
-### Registro de usuário
-- `POST /users/register`
-  - Body: `{ "username": "string", "password": "string", "favorecidos": ["string"] }`
+- Para iniciar o servidor GraphQL, execute:
+  ```sh
+  npm run start-graphql
+  ```
+- A API GraphQL estará disponível em `http://localhost:4000/graphql`.
+- Você pode usar o GraphQL Playground para interagir com a API nesse endereço.
 
-### Login
-- `POST /users/login`
-  - Body: `{ "username": "string", "password": "string" }`
+---
 
-### Listar usuários
-- `GET /users`
+## 📖 Documentação e Endpoints
 
-### Transferências
-- `POST /transfers`
-  - Body: `{ "from": "string", "to": "string", "value": number }`
-- `GET /transfers`
+### API REST (`localhost:3000`)
 
-### GraphQL Types, Queries e Mutations
+#### Usuários
+- `POST /users/register` - Registra um novo usuário.
+  ```json
+  { "username": "string", "password": "string", "favorecidos": ["string"] }
+  ```
+- `POST /users/login` - Autentica um usuário e retorna um token JWT.
+  ```json
+  { "username": "string", "password": "string" }
+  ```
+- `GET /users` - Lista todos os usuários.
 
-Rode `npm run start-graphql` para executar a API do GraphQL e acesse a URL http://localhost:4000/graphql para acessá-la.
+#### Transferências
+- `POST /transfers` - Cria uma nova transferência (requer autenticação).
+  ```json
+  { "from": "string", "to": "string", "value": number }
+  ```
+- `GET /transfers` - Lista todas as transferências (requer autenticação).
 
-- **Types:**
-  - `User`: username, favorecidos, saldo
-  - `Transfer`: from, to, value, date
-- **Queries:**
-  - `users`: lista todos os usuários
-  - `transfers`: lista todas as transferências (requer autenticação JWT)
-- **Mutations:**
-  - `registerUser(username, password, favorecidos)`: retorna User
-  - `loginUser(username, password)`: retorna token + User
-  - `createTransfer(from, to, value)`: retorna Transfer (requer autenticação JWT)
+### API GraphQL (`localhost:4000/graphql`)
 
-## Regras de negócio
+#### Queries
+- `users`: Lista todos os usuários.
+- `transfers`: Lista todas as transferências (requer autenticação).
+
+#### Mutations
+- `registerUser(username, password, favorecidos)`: Registra um novo usuário.
+- `loginUser(username, password)`: Autentica um usuário e retorna `token` e `User`.
+- `createTransfer(from, to, value)`: Cria uma nova transferência (requer autenticação).
+
+---
+
+## 📝 Regras de Negócio
+
 - Não é permitido registrar usuários duplicados.
 - Login exige usuário e senha.
 - Transferências acima de R$ 5.000,00 só podem ser feitas para favorecidos.
 - O saldo inicial de cada usuário é de R$ 10.000,00.
 
-## Testes
-- O arquivo `app.js` pode ser importado em ferramentas de teste como Supertest.
-- Para testar a API GraphQL, importe `graphql/app.js` nos testes.
+## 🧪 Testes Automatizados
 
-### Executando os Testes
+Para garantir a qualidade e o funcionamento da API, foram criados testes automatizados que podem ser executados com os seguintes comandos:
 
-#### Comandos Disponíveis:
+### Comandos Principais
 
-##### Usando npm:
 ```bash
 # Executar TODOS os testes
 npm test
@@ -84,11 +121,8 @@ npm test
 # Executar apenas testes de controller (com mocks)
 npm run test-controller
 
-# Executar apenas testes externos (sem mocks)
+# Executar apenas testes externos (de integração, sem mocks)
 npm run test-external
-
-# Iniciar o servidor
-npm start
 ```
 
 ##### Usando yarn:

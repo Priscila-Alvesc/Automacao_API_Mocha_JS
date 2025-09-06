@@ -1,12 +1,15 @@
 // Bibliotecas
 const request = require('supertest');
 const { expect } = require('chai');
+require('dotenv').config();
 
 // Testes
 describe('Testes API Rest - Transfer com chamada Externa', () => {
+    const baseUrlRest = process.env.BASE_URL_REST;
+
     describe('POST /transfers', () => {
         beforeEach(async () => {
-            const respostaLogin = await request('http://localhost:3000')
+            const respostaLogin = await request(baseUrlRest)
                 .post('/users/login')
                 .send({
                     username: 'julio',
@@ -17,7 +20,7 @@ describe('Testes API Rest - Transfer com chamada Externa', () => {
         });
 
         it('Quando informo remetente e destinatario inexistentes recebo 400', async () => {
-            const resposta = await request('http://localhost:3000')
+            const resposta = await request(baseUrlRest)
                 .post('/transfers')
                 .set('Authorization', `Bearer ${token}`)
                 .send({
@@ -30,8 +33,8 @@ describe('Testes API Rest - Transfer com chamada Externa', () => {
             expect(resposta.body).to.have.property('error', 'Usuário remetente ou destinatário não encontrado')
         });
 
-        it('Usando Mocks: Quando informo remetente e destinatario inexistentes recebo 400', async () => {
-            const resposta = await request("http://localhost:3000")
+        it('Quando informo um remetente inexistente recebo 400', async () => {
+            const resposta = await request(baseUrlRest)
                 .post('/transfers')
                 .set('Authorization', `Bearer ${token}`)
                 .send({
@@ -44,8 +47,8 @@ describe('Testes API Rest - Transfer com chamada Externa', () => {
             expect(resposta.body).to.have.property('error', 'Usuário remetente ou destinatário não encontrado');
         });
 
-        it('Usando Mocks: Quando informo valores válidos eu tenho sucesso com 201 CREATED', async () => {
-            const resposta = await request('http://localhost:3000')
+        it('Quando informo valores válidos eu tenho sucesso com 201 CREATED', async () => {
+            const resposta = await request(baseUrlRest)
                 .post('/transfers')
                 .set('Authorization', `Bearer ${token}`)
                 .send({

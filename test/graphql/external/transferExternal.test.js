@@ -1,20 +1,23 @@
 const request = require('supertest');
 const { expect, use} = require('chai');
+require('dotenv').config();
 
 const chaiExclude = require('chai-exclude');
 use(chaiExclude);
 
 describe('Testes de Transferência API GraphQL', () => {
+    const baseUrlGraphql = process.env.BASE_URL_GRAPHQL;
+
     before(async() =>{
         const loginUser = require ('../fixture/requisicoes/login/loginUser.json');
-        const loginResponse = await request('http://localhost:4000/graphql')
+        const loginResponse = await request(baseUrlGraphql)
             .post('')
             .send(loginUser);
             
         token = loginResponse.body.data.loginUser.token;
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         createTransfer = require ('../fixture/requisicoes/transferencia/createTransfer.json');
     });
 
@@ -22,7 +25,7 @@ describe('Testes de Transferência API GraphQL', () => {
 
         const respostaEsperada = require ('../fixture/respostas/transferencia/validarQueÉPossivelTransferirGranaEntreSuasContas.json')
 ;
-        const response = await request('http://localhost:4000/graphql')
+        const response = await request(baseUrlGraphql)
             .post('')
             .set('Authorization', `Bearer ${token}`)
             .send(createTransfer);
@@ -34,7 +37,7 @@ describe('Testes de Transferência API GraphQL', () => {
     it('Validar que não é possível transferir de uma conta sem saldo suficiente', async () => {
         createTransfer.variables.value = 10000.01;
                
-        const response = await request('http://localhost:4000/graphql')
+        const response = await request(baseUrlGraphql)
             .post('')
             .set('Authorization', `Bearer ${token}`)
             .send (createTransfer);
