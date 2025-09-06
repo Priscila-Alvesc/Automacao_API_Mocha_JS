@@ -3,7 +3,7 @@ const request = require('supertest');
 const { expect } = require('chai');
 
 // Testes
-describe('Testes Transfer com chamada Externa', () => {
+describe('Testes API Rest - Transfer com chamada Externa', () => {
     describe('POST /transfers', () => {
         beforeEach(async () => {
             const respostaLogin = await request('http://localhost:3000')
