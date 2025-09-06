@@ -4,14 +4,14 @@
   "description": "Esta API permite o registro, login, consulta de usuários e transferências de valores entre usuários. O objetivo é servir de base para estudos de testes e automação de APIs.",
   "main": "app.js",
   "scripts": {
-  "test": "mocha \"test/**/*.test.js\" --timeout 10000 --reporter mochawesome",
-  "test-rest-external": "mocha \"test/rest/external/**/*.test.js\" --timeout 10000 --reporter mochawesome",
-  "test-rest-controller": "mocha \"test/rest/controller/**/*.test.js\" --timeout 10000 --reporter mochawesome",
-  "test-graphql-external": "mocha \"test/graphql/external/**/*.test.js\" --timeout 10000 --reporter mochawesome",
-  "start": "node src/server.js",
-  "prestart-graphql": "npm install",
-  "start-graphql": "node graphql/server.js"
-  },  
+    "test": "mocha \"test/**/*.test.js\" --timeout 10000 --reporter mochawesome",
+    "test-rest-external": "mocha \"test/rest/external/**/*.test.js\" --timeout 10000 --reporter mochawesome",
+    "test-rest-controller": "mocha \"test/rest/controller/**/*.test.js\" --timeout 10000 --reporter mochawesome",
+    "test-graphql-external": "mocha \"test/graphql/external/**/*.test.js\" --timeout 10000 --reporter mochawesome",
+    "start-rest": "node src/server.js",
+    "prestart-graphql": "npm install",
+    "start-graphql": "node graphql/server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -21,12 +21,14 @@
     "apollo-server-express": "^3.13.0",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.1",
+    "exclude": "^1.0.0",
     "express": "^4.17.1",
     "graphql": "^16.11.0",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "chai": "4.5.0",
+    "chai": "^4.5.0",
+    "chai-exclude": "^2.1.1",
     "jsonwebtoken": "^9.0.2",
     "mocha": "^11.7.1",
     "mochawesome": "^7.1.3",

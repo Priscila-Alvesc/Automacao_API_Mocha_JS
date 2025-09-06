@@ -1,3 +1,4 @@
+
 name: Node.js CI
 
 on:
@@ -7,7 +8,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,16 +23,20 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Run Controller Tests (Unitario)
-      run: |
-        npm run test-rest-controller
-       
-    - name: Start APIs for External Tests
-      run: |
-        npm start &
-        npm run start-graphql &
+    - name: Rodar os testes de API via Controller
+      run: npm run test-rest-controller
 
-    - name: Run External Tests
-      run: |
-        npm run test-rest-external
-        npm run test-graphql-external
+    - name: Subir a API Rest 
+      run: npm run start-rest &
+
+    - name: Subir a API GraphQL 
+      run: npm run start-graphql &
+
+    - name: Esperar as APIs estarem Funcionando
+      run: sleep 8
+
+    - name: Rodar os testes External de API Rest via HTTP
+      run: npm run test-rest-external
+
+    - name: Rodar os testes External de API GraphQL via HTTP
+      run: npm run test-graphql-external

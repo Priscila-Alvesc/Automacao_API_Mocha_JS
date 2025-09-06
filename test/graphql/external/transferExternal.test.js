@@ -1,5 +1,8 @@
 const request = require('supertest');
-const { expect } = require('chai');
+const { expect, use} = require('chai');
+
+const chaiExclude = require('chai-exclude');
+use(chaiExclude);
 
 describe('Testes de Transferência API GraphQL', () => {
     before(async() =>{
@@ -11,57 +14,30 @@ describe('Testes de Transferência API GraphQL', () => {
         token = loginResponse.body.data.loginUser.token;
     });
 
+    beforeEach(() => {
+        createTransfer = require ('../fixture/requisicoes/transferencia/createTransfer.json');
+    });
+
     it('Validar que é possível transferir grana entre duas contas', async () => {
-     
+
+        const respostaEsperada = require ('../fixture/respostas/transferencia/validarQueÉPossivelTransferirGranaEntreSuasContas.json')
+;
         const response = await request('http://localhost:4000/graphql')
             .post('')
             .set('Authorization', `Bearer ${token}`)
-            .send({
-                query: `
-                    mutation CreateTransfer($from: String!, $to: String!, $value: Float!) {
-                        createTransfer(from: $from, to: $to, value: $value) {
-                            date
-                            from
-                            to
-                            value
-                        }
-                    }
-                `,
-                variables: {
-                    from: 'julio',
-                    to: 'priscila',
-                    value: 15
-                }
-            });
+            .send(createTransfer);
 
         expect(response.status).to.equal(200);
-        expect(response.body.data.createTransfer).to.have.property('from', 'julio');
-        expect(response.body.data.createTransfer).to.have.property('to', 'priscila');
-        expect(response.body.data.createTransfer).to.have.property('value', 15);
+        expect(response.body.data.createTransfer).excluding('date').to.deep.equal(respostaEsperada.data.createTransfer);
     });
 
     it('Validar que não é possível transferir de uma conta sem saldo suficiente', async () => {
+        createTransfer.variables.value = 10000.01;
                
         const response = await request('http://localhost:4000/graphql')
             .post('')
             .set('Authorization', `Bearer ${token}`)
-            .send({
-                query: `
-                    mutation CreateTransfer($from: String!, $to: String!, $value: Float!) {
-                        createTransfer(from: $from, to: $to, value: $value) {
-                            date
-                            from
-                            to
-                            value
-                        }
-                    }
-                `,
-                variables: {
-                    from: 'julio',
-                    to: 'priscila',
-                    value: 10000.01
-                }
-            });
+            .send (createTransfer);
 
         expect(response.body.errors[0].message).to.equal('Saldo insuficiente');
     });
