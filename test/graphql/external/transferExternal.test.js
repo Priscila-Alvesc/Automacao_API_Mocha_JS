@@ -18,7 +18,7 @@ describe('Testes de Transferência API GraphQL', () => {
     });
 
     beforeEach(async () => {
-        createTransfer = require ('../fixture/requisicoes/transferencia/createTransfer.json');
+        createTransfer = require('../fixture/requisicoes/transferencia/createTransfer.json');
     });
 
     it('Validar que é possível transferir grana entre duas contas', async () => {
