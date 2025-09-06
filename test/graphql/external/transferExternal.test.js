@@ -2,21 +2,11 @@ const request = require('supertest');
 const { expect } = require('chai');
 
 describe('Testes de Transferência API GraphQL', () => {
-    beforeEach(async() =>{
+    before(async() =>{
+        const loginUser = require ('../fixture/requisicoes/login/loginUser.json');
         const loginResponse = await request('http://localhost:4000/graphql')
             .post('')
-            .send({
-                query: `
-                    mutation LoginUser($username: String!, $password: String!) { 
-                        loginUser(username: $username, password: $password) { 
-                            token 
-                        }
-                    }`,
-                variables: {
-                    username: 'julio',
-                    password: '123456'
-                }
-            });
+            .send(loginUser);
             
         token = loginResponse.body.data.loginUser.token;
     });
