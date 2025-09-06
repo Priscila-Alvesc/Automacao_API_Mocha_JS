@@ -31,9 +31,6 @@ jobs:
         npm start &
         npm run start-graphql &
 
-    - name: Wait for APIs to be ready with wait-on
-      run: npx wait-on http://localhost:3000 http://localhost:4000/graphql
-
     - name: Run External Tests
       run: |
         npm run test-rest-external
