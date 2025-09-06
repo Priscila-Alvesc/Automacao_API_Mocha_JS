@@ -5,11 +5,9 @@
   "main": "app.js",
   "scripts": {
     "test": "mocha \"test/**/*.test.js\" --timeout 10000 --reporter mochawesome",
-    "test-external:run": "mocha \"test/external/**/*.test.js\" --timeout 10000 --reporter mochawesome --exit",
+    "test-external": "mocha \"test/external/**/*.test.js\" --timeout 10000 --reporter mochawesome",
     "test-controller": "mocha \"test/controller/**/*.test.js\" --timeout 10000 --reporter mochawesome",
-    "test-external": "concurrently --kill-others --success first \"npm:start-servers\" \"npm:test-external:run\"",
     "start": "node server.js",
-    "start-servers": "concurrently --kill-others \"npm:start\" \"npm:start-graphql\"",
     "prestart-graphql": "npm install",
     "start-graphql": "node graphql/server.js"
   },
@@ -27,7 +25,6 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
     "chai": "4.5.0",
     "jsonwebtoken": "^9.0.2",
     "mocha": "^11.7.1",
