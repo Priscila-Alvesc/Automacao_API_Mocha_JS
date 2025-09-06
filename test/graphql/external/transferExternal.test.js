@@ -21,27 +21,31 @@ describe('Testes de Transferência API GraphQL', () => {
         createTransfer = require('../fixture/requisicoes/transferencia/createTransfer.json');
     });
 
-    it('Validar que é possível transferir grana entre duas contas', async () => {
+      it('Validar que é possível transferir grana entre duas contas', async () => {
+        const respostaEsperada = require('../fixture/respostas/transferencia/validarQueEPossivelTransferirGranaEntreDuasContas.json');
 
-        const respostaEsperada = require ('../fixture/respostas/transferencia/validarQueÉPossivelTransferirGranaEntreSuasContas.json')
-;
-        const response = await request(baseUrlGraphql)
+        const respostaTransferencia = await request(baseUrlGraphql)
             .post('')
             .set('Authorization', `Bearer ${token}`)
             .send(createTransfer);
 
-        expect(response.status).to.equal(200);
-        expect(response.body.data.createTransfer).excluding('date').to.deep.equal(respostaEsperada.data.createTransfer);
+        expect(respostaTransferencia.status).to.equal(200);
+        expect(respostaTransferencia.body.data.createTransfer)
+            .excluding('date')
+            .to.deep.equal(respostaEsperada.data.createTransfer);
+
     });
 
-    it('Validar que não é possível transferir de uma conta sem saldo suficiente', async () => {
-        createTransfer.variables.value = 10000.01;
-               
-        const response = await request(baseUrlGraphql)
-            .post('')
-            .set('Authorization', `Bearer ${token}`)
-            .send (createTransfer);
+    const testesDeErrosDeNegocio = require('../fixture/requisicoes/transferencia/createTransferWithError.json'); 
+    testesDeErrosDeNegocio.forEach(teste => {
+        it(`Validar que não é possível transferir com ${teste.nomeDoTeste}`, async () => {
+            const respostaTransferencia = await request(baseUrlGraphql)
+                .post('')
+                .set('Authorization', `Bearer ${token}`)
+                .send(teste.createTransfer);
 
-        expect(response.body.errors[0].message).to.equal('Saldo insuficiente');
+            expect(respostaTransferencia.status).to.equal(200);
+            expect(respostaTransferencia.body.errors[0].message).to.equal(teste.mensagemEsperada);
+        });
     });
 });
