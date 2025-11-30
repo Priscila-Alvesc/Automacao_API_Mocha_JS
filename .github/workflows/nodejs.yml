@@ -22,25 +22,35 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Rodar os testes de API via Controller
+    # Os testes de controller não precisam da API rodando, então os executamos primeiro.
+    # Isso permite que o pipeline falhe mais rápido se houver um erro de unidade.
+    - name: Rodar testes de unidade (Controller)
       run: npm run test-rest-controller
 
+    # A partir daqui, subimos as APIs para rodar os testes de integração e carga.
     - name: Subir a API Rest 
       run: npm run start-rest &
 
     - name: Subir a API GraphQL 
       run: npm run start-graphql &
 
-    - name: Esperar as APIs estarem Funcionando
-      run: sleep 8
+    - name: Esperar as APIs estarem prontas
+      run: npx wait-on tcp:3000 tcp:4000 -t 30000
 
     - name: Criar .env
       run: |
         echo "BASE_URL_REST=${{ secrets.BASE_URL_REST }}" >> .env
         echo "BASE_URL_GRAPHQL=${{ secrets.BASE_URL_GRAPHQL }}" >> .env
 
-    - name: Rodar os testes External de API Rest via HTTP
-      run: npm run test-rest-external
+    - name: Instalar k6
+      uses: grafana/setup-k6@v1
 
-    - name: Rodar os testes External de API GraphQL via HTTP
-      run: npm run test-graphql-external
+    - name: Rodar testes de Integração (External) e Carga (k6)
+      run: npm test
+
+    - name: Publicar relatório de testes
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: mochawesome-report
+        path: mochawesome-report
