@@ -23,12 +23,9 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    # Os testes de controller não precisam da API rodando, então os executamos primeiro.
-    # Isso permite que o pipeline falhe mais rápido se houver um erro de unidade.
     - name: Rodar testes de unidade (Controller)
       run: npm run test-rest-controller
 
-    # A partir daqui, subimos as APIs para rodar os testes de integração e carga.
     - name: Subir a API Rest 
       run: npm run start-rest &
 
@@ -44,7 +41,11 @@ jobs:
         echo "BASE_URL_GRAPHQL=${{ secrets.BASE_URL_GRAPHQL }}" >> .env
 
     - name: Instalar k6
-      uses: grafana/setup-k6@v1.3.0
+      run: |
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
 
     - name: Rodar testes de Integração (External) e Carga (k6)
       run: npm test
