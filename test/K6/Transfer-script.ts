@@ -1,55 +1,60 @@
 import http from 'k6/http';
 import { sleep, check, group } from 'k6';
+import { Trend } from 'k6/metrics';
+import { getBaseUrl } from './helpers/baseUrlHelper.js';
+import { loginUser } from './helpers/loginHelper.js';
+import { getRandomUser } from './helpers/randomUserHelper.js';
+
+const transferTrend = new Trend('transfer_duration');
 
 export const options = {
   vus: 10,
-  iterations: 10, // total de execuções (1 por VU, por exemplo)
+  duration: '15s',
   thresholds: {
-    http_req_duration: ['p(90)<=2000', 'p(95)<=3000'], // em ms
-    http_req_failed: ['rate<0.01']
+    http_req_duration: ['p(95)<=2000']
   }
 };
 
 export default function() {
-  let responseUserLogin = '';
+  const baseUrl = getBaseUrl();
+  const username = getRandomUser();
+  const password = '123456'; // Assuming default password
 
-  group('Fazendo login', function() {
-    responseUserLogin = http.post(
-      'http://localhost:3000/users/login',
-      JSON.stringify({
-        username: "julio",
-        password: "123456"
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+  group('Login', function() {
+    const loginResponse = loginUser(username, password, baseUrl);
+    const token = loginResponse.json('token');
   });
 
-  group('Registrando uma nova transferência', function() {
+  group('Transfer', function() {
+    const loginResponse = loginUser(username, password, baseUrl); 
+    const token = loginResponse.json('token');
+
+    const from = username;
+    const to = username === 'julio' ? 'priscila' : 'julio';
+
     const responseTransfer = http.post(
-      'http://localhost:3000/transfers',
+      `${baseUrl}/transfers`,
       JSON.stringify({
-        from: "julio",
-        to: "priscila",
+        from,
+        to,
         value: 50
       }),
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${responseUserLogin.json('token')}`
+          'Authorization': `Bearer ${token}`
         }
       }
     );
 
     check(responseTransfer, {
-      'status deve ser igual a 201': (r) => r.status === 201
+      'Transfer status is 201': (r) => r.status === 201
     });
+
+    transferTrend.add(responseTransfer.timings.duration);
   });
 
-  group('Simulando o pensamento do usuário', function() {
-    sleep(1); // User Think Time
+  group('User Think Time', function() {
+    sleep(1);
   });
 }

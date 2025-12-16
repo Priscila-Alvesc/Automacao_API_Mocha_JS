@@ -17,6 +17,7 @@ Este projeto contém duas implementações de uma API para transferências de va
 - Mocha & Chai (Testes)
 - Sinon (Mocks & Stubs)
 - Supertest (Requisições HTTP em testes)
+- K6 (Testes de Performance para POST /transfers)
 - Banco de dados em memória (variáveis)
 
 ---
@@ -50,7 +51,7 @@ O projeto possui dois servidores que podem ser executados separadamente.
 
 - Para iniciar o servidor REST, execute:
   ```sh
-  npm start
+  npm run start-rest
   ```
 - A API REST estará disponível em `http://localhost:3000`.
 - A documentação Swagger pode ser acessada em `http://localhost:3000/api-docs`.
@@ -145,7 +146,107 @@ yarn start
 # Executar um arquivo específico
 npx mocha test/controller/transferController.test.js
 npx mocha test/external/transferExternal.test.js
+```
+
+# Executar apenas testes externos (de integração, sem mocks)
+npm run test-external
+```
+
+##### Usando yarn:
+```bash
+# Executar TODOS os testes
+yarn test
+
+# Executar apenas testes de controller (com mocks)
+yarn test-controller
+
+# Executar apenas testes externos (sem mocks)
+yarn test-external
+
+# Iniciar o servidor
+yarn start
+```
+
+##### Comandos específicos:
+```bash
+# Executar um arquivo específico
+npx mocha test/controller/transferController.test.js
+npx mocha test/external/transferExternal.test.js
 
 ---
 
-Para dúvidas, consulte a documentação Swagger, GraphQL Playground ou o código-fonte.
+#### Teste de Performance com K6:
+
+Este projeto inclui um teste de performance utilizando K6 para simular carga na API REST, focando no fluxo de login e transferência entre usuários.
+
+### Pré-requisitos para o Teste K6
+
+- K6 instalado (disponível em [k6.io](https://k6.io/)).
+- API REST em execução (veja seção "Executando as APIs").
+
+### Funcionamento do Teste (`test/K6/Transfer-script.ts`)
+
+O teste simula 10 usuários virtuais (VUs) executando o fluxo de login e transferência por 15 segundos, com threshold de performance: percentil 95 da duração das requests deve ser ≤ 2000ms.
+
+Atraves do arquivo test/k6/checkout.test.js e demontra o uso do conceito de Groups e dentro dele faço uso de um helpers para modularizar e reutilizar código, facilitando a manutenção e a legibilidade do script principal.
+
+Dentro do groups, é executada a função loginUser(username, password, baseUrl), que foi importada do helper loginHelper.js
+
+        group('Login', function() {
+            const loginResponse = loginUser(username, password, baseUrl);
+            const token = loginResponse.json('token');
+          });
+  
+Com token é possível autenticar no metodo Post\Transfers, que agrupa ações de transferências:
+
+        group('Transfer', function() {
+          const loginResponse = loginUser(username, password, baseUrl); 
+          const token = loginResponse.json('token');
+              ...
+        });  
+        
+ E temos a group User Think Time: que executa `sleep(1)` para simular tempo de reflexão do usuário:
+ 
+        group('User Think Time', function() {
+            sleep(1);
+          });
+          
+
+---## Helpers Utilizados no Teste K6
+
+### 1. `baseUrlHelper.js`
+- **Localização**: `test/k6/helpers/baseUrlHelper.js`
+- **Descrição**: Fornece a URL base da API, permitindo configuração via variável de ambiente.
+
+  export function getBaseUrl() {
+  return __ENV.BASE_URL || 'http://localhost:3000';
+}
+
+
+### 2. `loginHelper.js`
+- **Localização**: `test/k6/helpers/loginHelper.js`
+- **Descrição**: Realiza o login do usuário e valida a resposta.
+- **Função Principal**: `loginUser(username, password, baseUrl)`
+
+export function loginUser(username, password, baseUrl) {
+  const response = http.post(
+    `${baseUrl}/users/login`,
+    JSON.stringify({ username, password }),
+    {
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
+
+
+### 3. `randomUserHelper.js`
+- **Localização**: `test/k6/helpers/randomUserHelper.js`
+- **Descrição**: Seleciona aleatoriamente um usuário da lista de usuários disponíveis.
+- **Função Principal**: `getRandomUser()`
+
+const users = ['julio', 'priscila'];
+
+export function getRandomUser() {
+  return users[Math.floor(Math.random() * users.length)];
+}
+
+
