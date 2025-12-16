@@ -186,7 +186,21 @@ Este projeto inclui um teste de performance utilizando K6 para simular carga na 
 
 ### Funcionamento do Teste (`test/K6/Transfer-script.ts`)
 
-O teste simula 10 usuários virtuais (VUs) executando o fluxo de login e transferência por 15 segundos, com threshold de performance: percentil 95 da duração das requests deve ser ≤ 2000ms.
+O teste utiliza stages para simular um perfil de carga realista: começa com ramp-up para 10 VUs em 3s, mantém 10 VUs por 15s, pica para 100 VUs em 2s e mantém por 3s, volta para 10 VUs por 5s, e finaliza com ramp-down para 0 VUs em 5s. O threshold de performance é: percentil 95 da duração das requests deve ser ≤ 2000ms.
+
+        export const options = {
+          stages: [
+                { duration: '3s', target: 10 },     // Ramp up
+                { duration: '15s', target: 10 },    // Average
+                { duration: '2s', target: 100 },    // Spike
+                { duration: '3s', target: 100 },    // Spike
+                { duration: '5s', target: 10 },     // Average
+                { duration: '5s', target: 0 },      // Ramp down
+            ],
+          thresholds: {
+            http_req_duration: ['p(95)<=2000']
+          }
+        };
 
 Atraves do arquivo test/k6/checkout.test.js e demontra o uso do conceito de Groups e dentro dele faço uso de um helpers para modularizar e reutilizar código, facilitando a manutenção e a legibilidade do script principal.
 
@@ -211,6 +225,22 @@ Com token é possível autenticar no metodo Post\Transfers, que agrupa ações d
             sleep(1);
           });
           
+
+### Executando o Teste K6
+
+Para executar o teste de performance:
+
+```sh
+k6 run test/K6/Transfer-script.ts
+```
+
+Para executar com dashboard web e exportar relatório HTML:
+
+```sh
+K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=html-report.html K6_WEB_DASHBOARD_PERIOD=10s k6 run test/K6/Transfer-script.ts
+```
+
+Nota: Certifique-se de que a API REST esteja rodando em `http://localhost:3000` (ou configure `BASE_URL` via variável de ambiente).
 
 ---## Helpers Utilizados no Teste K6
 

@@ -8,8 +8,14 @@ import { getRandomUser } from './helpers/randomUserHelper.js';
 const transferTrend = new Trend('transfer_duration');
 
 export const options = {
-  vus: 10,
-  duration: '15s',
+  stages: [
+        { duration: '3s', target: 10 },     // Ramp up
+        { duration: '15s', target: 10 },    // Average
+        { duration: '2s', target: 100 },    // Spike
+        { duration: '3s', target: 100 },    // Spike
+        { duration: '5s', target: 10 },     // Average
+        { duration: '5s', target: 0 },      // Ramp down
+    ],
   thresholds: {
     http_req_duration: ['p(95)<=2000']
   }
